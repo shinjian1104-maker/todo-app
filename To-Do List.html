@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>To-Do List</title>
+</head>
+<body>
+    <h1>나의 할 일 목록</h1>
+
+    <div class="container">
+        <input id='todo-input' type="text" placeholder="할 일을 입력하세요.">
+        <button id="addBtn">추가</button>
+        <div class="filters">
+            <button id="allBtn">전체</button>
+            <button id="doneBtn">완료</button>
+            <button id="undoneBtn">미완료</button>
+            <button id="undoBtn">삭제 취소</button>
+        </div>
+        <ul id="todo-list"></ul>
+    </div>
+
+    <style>
+        .done {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .container {
+            width: 400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .container input, .container.button {
+            margin: 5px;
+        }
+
+        .filters button {
+            margin: 5px;
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+
+        .filters button.active {
+            background-color: #333;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+<script>
+    let lastDeletedTodo = null;
+    let lastDeletedIndex = null;
+
+    const input = document.getElementById('todo-input');
+    const list = document.getElementById('todo-list');
+    const addBtn = document.getElementById('addBtn');
+
+    const allBtn = document.getElementById('allBtn');
+    const doneBtn = document.getElementById('doneBtn');
+    const undoneBtn = document.getElementById('undoneBtn');
+
+    let todos = JSON.parse(localStorage.getItem('todos')) || [];
+    let currentMode = 'all';
+
+    function setActiveButton(mode) {
+        allBtn.classList.remove('active');
+        doneBtn.classList.remove('active');
+        undoneBtn.classList.remove('active');
+
+        if (mode === 'all') allBtn.classList.add('active');
+        if (mode === 'done') doneBtn.classList.add('active');
+        if (mode === 'undone') undoneBtn.classList.add('active');
+    }
+
+    function saveFilter(mode) {
+        localStorage.setItem('filter', mode);
+    }
+
+    function loadFilter() {
+        return localStorage.getItem('filter') || 'all';
+    }
+
+    function saveTodos() {
+        localStorage.setItem('todos', JSON.stringify(todos));
+    }
+
+    const undoBtn = document.getElementById('undoBtn');
+
+    undoBtn.addEventListener('click', function () {
+        if (lastDeletedTodo === null) {
+            alert('되돌릴 항목이 없습니다.');
+            return;
+        }
+
+        todos.splice(lastDeletedIndex, 0, lastDeletedTodo);
+
+        lastDeletedTodo = null;
+        lastDeletedIndex = null;
+
+        saveTodos();
+        loadTodos(currentMode);
+    });
+
+    function loadTodos(mode = 'all') {
+        currentMode = mode;
+        saveFilter(mode);
+        setActiveButton(mode);
+        list.innerHTML = '';
+
+        let filteredTodos;
+
+        if (mode === 'done') {
+            filteredTodos = todos.filter(todo => todo.done);
+        } else if (mode === 'undone') {
+            filteredTodos = todos.filter(todo => !todo.done);
+        } else {
+            filteredTodos = todos;
+        }
+
+        filteredTodos.forEach((todo) => {
+            const li = document.createElement('li');
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = todo.done;
+
+            if (todo.done) {
+                li.classList.add('done');
+            }
+
+            checkbox.addEventListener('change', function () {
+                todo.done = checkbox.checked;
+                li.classList.toggle('done');
+                saveTodos();
+                loadTodos(currentMode);
+            });
+
+            const span = document.createElement('span');
+            span.innerText = todo.text;
+
+            const deLete = document.createElement('button');
+            deLete.innerText = '삭제';
+
+            deLete.addEventListener('click', function () {
+                lastDeletedTodo = todo;
+                lastDeletedIndex = todos.indexOf(todo);
+
+                todos.splice(lastDeletedIndex, 1);
+                saveTodos();
+                loadTodos(currentMode);
+            });
+
+            const editBtn = document.createElement('button');
+            editBtn.innerText = '수정';
+
+            editBtn.addEventListener('click', function () {
+                const newText = prompt('수정할 내용을 입력하세요.', todo.text);
+
+                if (newText === null) return;
+                if (newText.trim() === '') return;
+
+                todo.text = newText.trim();
+                saveTodos();
+                loadTodos(currentMode);
+            });
+
+            li.appendChild(checkbox);
+            li.appendChild(span);
+            li.appendChild(deLete);
+            li.appendChild(editBtn);
+            list.appendChild(li);
+        });
+    }
+
+    function addTodo() {
+        const text = input.value.trim();
+        if (text === '') return;
+        
+        todos.push({ text: text, done: false });
+
+        saveTodos();
+        loadTodos();
+        input.value = '';
+    }
+
+    allBtn.addEventListener('click', () => loadTodos('all'));
+    doneBtn.addEventListener('click', () => loadTodos('done'));
+    undoneBtn.addEventListener('click', () => loadTodos('undone'));
+
+    addBtn.addEventListener('click', addTodo);
+
+    input.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            addTodo();
+        }
+    });
+
+    const savedFilter = loadFilter();
+    loadTodos(savedFilter);
+</script>
+</body>
+</html>
