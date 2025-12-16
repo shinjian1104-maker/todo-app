@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>To-Do List</title>
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
     <h1>나의 할 일 목록</h1>
@@ -277,9 +278,13 @@
 
     const savedFilter = loadFilter();
     loadTodos(savedFilter);
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js');
 </script>
 </body>
 </html>
+
 
 
 
