@@ -18,6 +18,8 @@
         <ul id="todo-list"></ul>
     </div>
 
+    <button onclick="sendTestNotification()">알림 테스트</button>
+
     <style>
         .done {
             text-decoration: line-through;
@@ -263,11 +265,22 @@
         }
     });
 
+    if (Notification.permission !== "granted") {
+        Notification.requestPermission();
+    }
+
+    function sendTestNotification() {
+        new Notification("할 일 알림", {
+            body: "테스트 알림입니다!",
+        });
+    }
+
     const savedFilter = loadFilter();
     loadTodos(savedFilter);
 </script>
 </body>
 </html>
+
 
 
 
