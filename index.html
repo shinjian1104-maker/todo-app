@@ -20,6 +20,8 @@
     </div>
 
     <button onclick="sendTestNotification()">알림 테스트</button>
+    <button id="alarmBtn">알람 설정</button>
+    <input type="time" id="alarm-time">
 
     <style>
         .done {
@@ -276,6 +278,40 @@
         });
     }
 
+    const alarmBtn = document.getElementById('alarmBtn');
+    const alarmImeInput = document.getElementById('alarm-Time');
+
+    alarmBtn.addEventListener('click', function () {
+        const time = alarmTimeInput.value;
+        if (!time) {
+            alert('알람 시강을 선택하세요');
+            return;
+        }
+
+        const now = new Date();
+        const [hour, minute] = time.split(':');
+        const alarmTime = new Date();
+
+        alarmTime.setHours(hour);
+        alarmTime.setMinutes(minute);
+        alarmTime.setSeconds(0);
+
+        if (alarmTime <= now) {
+            alarmTime.setDate(alarmTime.getDate() + 1);
+        }
+
+        const delay = alarmTime - now;
+
+        alert('알람이 설정되었습니다');
+
+        setTimeout(() => {
+            new Notification('할 일 알람', {
+                body: '설정한 시간이 되었어요!',
+                vibrate: [200, 100, 200],
+            });
+        }, delay);
+    });
+
     const savedFilter = loadFilter();
     loadTodos(savedFilter);
 
@@ -284,6 +320,7 @@
 </script>
 </body>
 </html>
+
 
 
 
