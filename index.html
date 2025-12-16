@@ -37,6 +37,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            padding: 10px 0;
         }
 
         .container {
@@ -50,15 +51,30 @@
         }
 
         .filters button {
-            margin: 5px;
-            padding: 6px 12px;
+            margin: 18px;
+            padding: 10px 14px;
             cursor: pointer;
         }
 
         .filters button.active {
             background-color: #333;
             color: white;
-            font-weight: bold;
+            border-radius: 8px;
+        }
+
+        button {
+            font-size: 16px;
+            padding: 8px 12px;
+        }
+
+        body {
+            font-size: 16px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                font-size: 18px;
+            }
         }
     </style>
 <script>
@@ -214,3 +230,4 @@
 </script>
 </body>
 </html>
+
